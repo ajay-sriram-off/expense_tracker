@@ -6,9 +6,9 @@ import com.manager.task.entities.Category;
 import com.manager.task.exceptions.CategoryNotFoundException;
 import com.manager.task.repositories.CategoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +20,10 @@ public class CategoryService {
         Category cat = new Category();
         cat.setName(categoryRequest.getName());
         return cat;
+    }
+
+    public CategoryResponse mapToCategoryResponse(Category category){
+        return new CategoryResponse(category.getId() ,category.getName());
     }
 
     // add Category
@@ -44,13 +48,9 @@ public class CategoryService {
     }
 
     // get All categories
-    public List<CategoryResponse> getAllCategories() {
-        return categoryRepository.findAll().stream().map(category -> {
-            CategoryResponse response = new CategoryResponse();
-            response.setId(category.getId());
-            response.setName(category.getName());
-            return response;
-        }).toList();
+    public Page<CategoryResponse> getAllCategories(Pageable pageable) {
+        return categoryRepository.findAll(pageable).map(this::mapToCategoryResponse);
+
     }
 
     // get category by id

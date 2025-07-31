@@ -5,6 +5,8 @@ import com.manager.task.dtos.CategoryResponse;
 import com.manager.task.services.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,9 +32,8 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryResponse>> getCategory(@PathVariable Long id){
-         List<CategoryResponse> list = categoryService.getAllCategories();
-         return ResponseEntity.ok(list);
+    public ResponseEntity<Page<CategoryResponse>> getCategory(Pageable pageable){
+         return ResponseEntity.ok(categoryService.getAllCategories(pageable));
     }
 
     @PutMapping("/{id}")

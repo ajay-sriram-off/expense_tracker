@@ -6,10 +6,10 @@ import com.manager.task.entities.Expense;
 import com.manager.task.services.ExpenseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/expense")
@@ -25,8 +25,8 @@ public class ExpenseController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ExpenseResponse>> getAllExpenses() {
-        return ResponseEntity.ok(expenseService.getAllExpenses());
+    public ResponseEntity<Page<ExpenseResponse>> getAllExpenses(Pageable pageable) {
+        return ResponseEntity.ok(expenseService.getAllExpenses(pageable));
     }
 
     @GetMapping("/{id}")

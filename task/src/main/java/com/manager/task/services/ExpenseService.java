@@ -7,6 +7,8 @@ import com.manager.task.entities.Expense;
 import com.manager.task.exceptions.ExpenseNotFoundException;
 import com.manager.task.repositories.ExpenseRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,22 +30,16 @@ public class ExpenseService {
             return exp;
         }
 
+        public ExpenseResponse mapToExpenseResponse(Expense expense){
+            return new ExpenseResponse(expense.getId(),expense.getAmount(),expense.getDate(),expense.getDescription(),expense.getCategory().getName());
+        }
+
         public void addExpense(ExpenseRequest expenseRequest){
             expenseRepository.save(mapToExpense(expenseRequest));
         }
 
-         public List<ExpenseResponse> getAllExpenses(){
-             return expenseRepository.findAll()
-                .stream()
-                .map(expense -> {
-                    ExpenseResponse response = new ExpenseResponse();
-                    response.setId(expense.getId());
-                    response.setAmount(expense.getAmount());
-                    response.setDate(expense.getDate());
-                    response.setCategoryName(expense.getCategory().getName());
-                    return response;
-                })
-                .toList();
+         public Page<ExpenseResponse> getAllExpenses(Pageable pageable){
+             return expenseRepository.findAll(pageable).map(this::mapToExpenseResponse);
          }
 
         public void updateExpense(Long id ,ExpenseRequest expenseRequest){
