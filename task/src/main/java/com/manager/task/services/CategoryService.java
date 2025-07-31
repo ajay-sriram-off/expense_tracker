@@ -3,6 +3,7 @@ package com.manager.task.services;
 import com.manager.task.dtos.CategoryRequest;
 import com.manager.task.dtos.CategoryResponse;
 import com.manager.task.entities.Category;
+import com.manager.task.exceptions.CategoryNotFoundException;
 import com.manager.task.repositories.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,7 @@ public class CategoryService {
         categoryRepository.findById(id).map(existing -> {
             existing.setName(categoryRequest.getName());
             return categoryRepository.save(existing);
-        }).orElseThrow(() -> new RuntimeException("Category with id " + id + " not found"));
+        }).orElseThrow(() -> new CategoryNotFoundException(id));
     }
 
     // get All categories
@@ -56,7 +57,7 @@ public class CategoryService {
     public CategoryResponse getCategoryById(Long id) {
         CategoryResponse categoryResponse = new CategoryResponse();
        Category category= categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category with id " + id + " not found"));
+                .orElseThrow(() -> new CategoryNotFoundException(id));
         categoryResponse.setName(category.getName());
         categoryResponse.setId(category.getId());
         return categoryResponse;

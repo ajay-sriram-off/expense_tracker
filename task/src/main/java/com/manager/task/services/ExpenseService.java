@@ -4,9 +4,9 @@ import com.manager.task.dtos.ExpenseRequest;
 import com.manager.task.dtos.ExpenseResponse;
 import com.manager.task.entities.Category;
 import com.manager.task.entities.Expense;
+import com.manager.task.exceptions.ExpenseNotFoundException;
 import com.manager.task.repositories.ExpenseRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -56,7 +56,7 @@ public class ExpenseService {
                 expense.setCategory(cat);
 
                return expenseRepository.save(expense);
-            }).orElseThrow();
+            }).orElseThrow(()-> new ExpenseNotFoundException(id));
         }
 
         public void deleteExpense(Long id){
@@ -64,6 +64,6 @@ public class ExpenseService {
         }
 
         public Expense getExpenseById(Long id){
-           return expenseRepository.findById(id).orElseThrow();
+           return expenseRepository.findById(id).orElseThrow(()-> new ExpenseNotFoundException(id));
         }
 }
