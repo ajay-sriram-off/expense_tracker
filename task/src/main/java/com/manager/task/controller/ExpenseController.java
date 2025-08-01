@@ -7,12 +7,13 @@ import com.manager.task.services.ExpenseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/expense")
+@RequestMapping("/expenses")
 @RequiredArgsConstructor
 public class ExpenseController {
 
@@ -24,16 +25,10 @@ public class ExpenseController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping
-    public ResponseEntity<Page<ExpenseResponse>> getAllExpenses(Pageable pageable) {
-        return ResponseEntity.ok(expenseService.getAllExpenses(pageable));
-    }
-
     @GetMapping("/{id}")
-    public ResponseEntity<ExpenseResponse> getExpenseById(Long id){
+    public ResponseEntity<ExpenseResponse> getExpenseById(@PathVariable Long id){
         Expense expense = expenseService.getExpenseById(id);
-        ExpenseResponse expenseResponse = new ExpenseResponse(expense.getId() ,expense.getAmount() ,expense.getDate() , expense.getDescription() ,expense.getCategory().getName());
-        return ResponseEntity.ok(expenseResponse);
+        return ResponseEntity.ok( new ExpenseResponse(expense.getId() ,expense.getAmount() ,expense.getDate() , expense.getDescription() ,expense.getCategory().getName()));
     }
 
     @PutMapping("/{id}")
@@ -46,6 +41,16 @@ public class ExpenseController {
     public ResponseEntity<Void> deleteExpense(Long id){
         expenseService.deleteExpense(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<ExpenseResponse>> getExpenses(
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(expenseService.getExpenses(categoryId, pageable));
     }
 
 

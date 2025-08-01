@@ -4,7 +4,9 @@ import com.manager.task.dtos.ExpenseRequest;
 import com.manager.task.dtos.ExpenseResponse;
 import com.manager.task.entities.Category;
 import com.manager.task.entities.Expense;
+import com.manager.task.exceptions.CategoryNotFoundException;
 import com.manager.task.exceptions.ExpenseNotFoundException;
+import com.manager.task.repositories.CategoryRepository;
 import com.manager.task.repositories.ExpenseRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,7 +20,7 @@ import java.util.List;
 public class ExpenseService {
 
         private ExpenseRepository expenseRepository;
-
+        private CategoryRepository categoryRepository;
         public Expense mapToExpense(ExpenseRequest expenseRequest){
             Expense exp = new Expense();
             Category cat = new Category();
@@ -28,6 +30,10 @@ public class ExpenseService {
             exp.setCategory(cat);
             exp.setDescription(expenseRequest.getDescription());
             return exp;
+        }
+
+        public ExpenseResponse mapToResponse(Expense expense){
+           return new ExpenseResponse(expense.getId(),expense.getAmount(),expense.getDate(),expense.getDescription(),expense.getCategory().getName());
         }
 
         public ExpenseResponse mapToExpenseResponse(Expense expense){
@@ -44,15 +50,15 @@ public class ExpenseService {
 
         public void updateExpense(Long id ,ExpenseRequest expenseRequest){
             expenseRepository.findById(id).map(expense -> {
-                Category cat = new Category();
-                cat.setId(expenseRequest.getCategoryId());
+                Category category = categoryRepository.findById(expenseRequest.getCategoryId())
+                        .orElseThrow(() -> new CategoryNotFoundException(expenseRequest.getCategoryId()));
                 expense.setDate(expenseRequest.getDate());
                 expense.setDescription(expenseRequest.getDescription());
                 expense.setAmount(expenseRequest.getAmount());
-                expense.setCategory(cat);
+                expense.setCategory(category);
 
-               return expenseRepository.save(expense);
-            }).orElseThrow(()-> new ExpenseNotFoundException(id));
+                return expenseRepository.save(expense);
+            }).orElseThrow(() -> new ExpenseNotFoundException(id));
         }
 
         public void deleteExpense(Long id){
@@ -62,4 +68,13 @@ public class ExpenseService {
         public Expense getExpenseById(Long id){
            return expenseRepository.findById(id).orElseThrow(()-> new ExpenseNotFoundException(id));
         }
+
+    public Page<ExpenseResponse> getExpenses(Long categoryId, Pageable pageable) {
+        Page<Expense> expenses;
+
+        if (categoryId != null) expenses = expenseRepository.findByCategoryId(categoryId, pageable);
+        else expenses = expenseRepository.findAll(pageable);
+
+        return expenses.map(this::mapToResponse);
+    }
 }
