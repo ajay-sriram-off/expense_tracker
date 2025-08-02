@@ -2,7 +2,6 @@ package com.manager.task.controller;
 
 import com.manager.task.dtos.ExpenseRequest;
 import com.manager.task.dtos.ExpenseResponse;
-import com.manager.task.entities.Expense;
 import com.manager.task.services.ExpenseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +26,8 @@ public class ExpenseController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ExpenseResponse> getExpenseById(@PathVariable Long id){
-        Expense expense = expenseService.getExpenseById(id);
-        return ResponseEntity.ok( new ExpenseResponse(expense.getId() ,expense.getAmount() ,expense.getDate() , expense.getDescription() ,expense.getCategory().getName()));
+        ExpenseResponse response = expenseService.getExpenseById(id);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")

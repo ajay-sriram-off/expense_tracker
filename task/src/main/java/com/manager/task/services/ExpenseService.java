@@ -13,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -65,8 +64,9 @@ public class ExpenseService {
              expenseRepository.deleteById(id);
         }
 
-        public Expense getExpenseById(Long id){
-           return expenseRepository.findById(id).orElseThrow(()-> new ExpenseNotFoundException(id));
+        public ExpenseResponse getExpenseById(Long id){
+         Expense expense =  expenseRepository.findById(id).orElseThrow(()-> new ExpenseNotFoundException(id));
+            return mapToResponse(expense);
         }
 
     public Page<ExpenseResponse> getExpenses(Long categoryId, Pageable pageable) {
