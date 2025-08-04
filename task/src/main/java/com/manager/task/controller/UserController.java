@@ -1,5 +1,6 @@
 package com.manager.task.controller;
 
+import com.manager.task.dtos.RegisterRequest;
 import com.manager.task.dtos.UserRequest;
 import com.manager.task.dtos.UserResponse;
 import com.manager.task.services.UserService;
@@ -20,8 +21,8 @@ public class UserController {
 
     // add user
     @PostMapping
-    public ResponseEntity<Void> addUser(@Valid @RequestBody UserRequest request){
-        userService.addUser(request);
+    public ResponseEntity<Void> addUser(@Valid @RequestBody RegisterRequest request){
+        userService.registerUser(request);
         return ResponseEntity.noContent().build();
     }
 
