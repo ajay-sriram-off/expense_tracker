@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,13 +44,13 @@ public class ExpenseController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ExpenseResponse>> getExpenses(
+    public ResponseEntity<Page<ExpenseResponse>> getMyExpenses(
             @RequestParam(required = false) Long categoryId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(expenseService.getExpenses(categoryId, pageable));
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        return ResponseEntity.ok(expenseService.getMyExpenses(categoryId, pageable));
     }
 
 

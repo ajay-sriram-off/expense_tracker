@@ -4,6 +4,7 @@ import com.manager.task.dtos.ExpenseRequest;
 import com.manager.task.dtos.ExpenseResponse;
 import com.manager.task.entities.Category;
 import com.manager.task.entities.Expense;
+import com.manager.task.entities.User;
 import com.manager.task.exceptions.CategoryNotFoundException;
 import com.manager.task.exceptions.ExpenseNotFoundException;
 import com.manager.task.repositories.CategoryRepository;
@@ -11,8 +12,9 @@ import com.manager.task.repositories.ExpenseRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
 
 @Service
 @AllArgsConstructor
@@ -40,11 +42,24 @@ public class ExpenseService {
         }
 
         public void addExpense(ExpenseRequest expenseRequest){
-            expenseRepository.save(mapToExpense(expenseRequest));
+            Expense expense = mapToExpense(expenseRequest);
+
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication(); // getting the current logged-in user from securityContext
+            User user = (User) auth.getPrincipal();   // logged-in user
+            expense.setUser(user); // tie expense to this current logged-in user
+
+            expenseRepository.save(expense);
         }
 
-         public Page<ExpenseResponse> getAllExpenses(Pageable pageable){
-             return expenseRepository.findAll(pageable).map(this::mapToExpenseResponse);
+        public Page<ExpenseResponse> getMyExpenses(Long categoryId, Pageable pageable) {
+              Page<Expense> expenses;
+              Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+              User user = (User) auth.getPrincipal();
+              if (categoryId != null) expenses = expenseRepository.findByUserIdAndCategoryId(user.getId(), categoryId, pageable);
+              else expenses = expenseRepository.findByUserId(user.getId(),pageable);
+
+            return expenses.map(this::mapToResponse);
+
          }
 
         public void updateExpense(Long id ,ExpenseRequest expenseRequest){
@@ -69,12 +84,4 @@ public class ExpenseService {
             return mapToResponse(expense);
         }
 
-    public Page<ExpenseResponse> getExpenses(Long categoryId, Pageable pageable) {
-        Page<Expense> expenses;
-
-        if (categoryId != null) expenses = expenseRepository.findByCategoryId(categoryId, pageable);
-        else expenses = expenseRepository.findAll(pageable);
-
-        return expenses.map(this::mapToResponse);
-    }
 }

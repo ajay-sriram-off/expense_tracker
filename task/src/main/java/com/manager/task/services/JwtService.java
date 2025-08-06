@@ -39,7 +39,7 @@ public class JwtService {
     }
 
     public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+        return extractClaim(token, Claims::getSubject); // remember we have writen .setSubject(userDetails.getUsername()) which is emailId in this case
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {

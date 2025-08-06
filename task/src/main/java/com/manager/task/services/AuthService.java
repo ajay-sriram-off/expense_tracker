@@ -26,6 +26,9 @@ public class AuthService {
     public AuthResponse login(LoginRequest request){
 
         authenticationManager.authenticate(
+                /*
+                  Here instead of doing the authentication ourselves we delegate that work to authenticationManager
+                 */
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()

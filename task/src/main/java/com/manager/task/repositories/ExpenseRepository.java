@@ -6,5 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ExpenseRepository extends JpaRepository<Expense,Long> {
-    Page<Expense> findByCategoryId(Long categoryId, Pageable pageable);
+    Page<Expense> findByUserIdAndCategoryId(Long userId,Long categoryId,Pageable pageable);
+    Page<Expense> findByUserId(Long userId,Pageable pageable);
 }
