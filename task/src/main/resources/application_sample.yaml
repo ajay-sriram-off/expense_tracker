@@ -6,3 +6,6 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
+  jwt:
+    secret: {base64key}
+    expiration: {expiration in milliseconds}
