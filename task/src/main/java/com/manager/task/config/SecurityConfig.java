@@ -40,7 +40,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http    .csrf(AbstractHttpConfigurer:: disable)
+            http.csrf(AbstractHttpConfigurer:: disable)
                 .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // stateless means webtoken
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()   // open for register/login

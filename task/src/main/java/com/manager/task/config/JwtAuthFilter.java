@@ -53,7 +53,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
               - auth.getPrincipal() => Our User object
               - auth.getAuthorities() => ROLE_USER
          */
-
+        System.out.println("JWT AUTHFILTER : "+ jwt);
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             // Here SecurityContextHolder.getContext().getAuthentication() == null helps us prevent overriding existing authentication.
             UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);

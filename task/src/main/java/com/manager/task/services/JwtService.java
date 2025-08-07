@@ -1,6 +1,7 @@
 package com.manager.task.services;
 import java.util.function.Function;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -28,14 +29,24 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(UserDetails userDetails , Long expiration) {
         return Jwts.builder()
                 .setSubject(userDetails.getUsername()) // email
                 .claim("role", userDetails.getAuthorities().iterator().next().getAuthority()) // add role
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public String generateAccessToken(UserDetails userDetails){
+        final long expirationMillis = 1000 * 60 * 15; // 15 min
+        return generateToken(userDetails, expirationMillis);
+    }
+
+    public String generateRefreshToken(UserDetails userDetails){
+        final long expirationMillis = 1000L * 60 * 60 * 24 * 7; // 7 days
+        return generateToken(userDetails, expirationMillis);
     }
 
     public String extractUsername(String token) {
@@ -67,5 +78,17 @@ public class JwtService {
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
+
+    public boolean validateToken(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            Date expiration = claims.getExpiration();
+            return expiration.after(new Date()); // token is valid if expiry is in future
+        } catch (JwtException | IllegalArgumentException e) {
+            // JwtException covers: SignatureException, MalformedJwtException, ExpiredJwtException etc.
+            return false;
+        }
+    }
+
 
 }

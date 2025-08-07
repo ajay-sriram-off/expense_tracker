@@ -4,12 +4,10 @@ import com.manager.task.dtos.AuthResponse;
 import com.manager.task.dtos.LoginRequest;
 import com.manager.task.dtos.RegisterRequest;
 import com.manager.task.services.AuthService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -18,12 +16,18 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.register(request));
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request, HttpServletResponse response) {
+        return ResponseEntity.ok(authService.register(request ,response));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request,HttpServletResponse response) {
+        return ResponseEntity.ok(authService.login(request ,response));
+    }
+
+    @PostMapping("/refresh")
+    public AuthResponse refreshToken(@CookieValue(name = "refreshToken", required = false) String refreshToken) {
+        String newAccessToken = authService.refreshAccessToken(refreshToken);
+        return new AuthResponse(newAccessToken);
     }
 }
